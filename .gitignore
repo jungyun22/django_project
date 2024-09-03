@@ -4,3 +4,5 @@ _pycache_/
 migrations/
 db.sqlite3
 _media/
+
+.env

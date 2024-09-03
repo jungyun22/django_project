@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from django.utils import timezone
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +41,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "blog",
     "board", # 마지막 줄에도 기왕이면 ,를 적어주세요
+    # "account",
+    'allauth',
+    'allauth.account',
+    'crispy_forms',
+    "crispy_bootstrap5",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -50,6 +57,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "fisa_django.urls"
@@ -72,16 +81,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "fisa_django.wsgi.application"
 
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+        "ENGINE":os.getenv('DB_ENGINE'),
+        "NAME": os.getenv('DB_NAME'), # DB Name  # mysql에서는 스키마랑 같아야함. 
+        "USER": os.getenv('DB_USER'),
+        "PASSWORD": os.getenv('DB_PASSWORD'),
+        "HOST": os.getenv('DB_HOST'),
+        "PORT": os.getenv('DB_PORT'),
+    },
+         'OPTIONS': {
+             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" #  MySQL 데이터베이스의 초기 설정 명령어
+         },                                                       # STRICT_TRANS_TABLES: 트랜잭션을 지원하는 테이블,                                                                  # 잘못된 데이터가 삽입되거나 업데이트될 때 경고 대신 오류를 발생
+ }
+
 
 
 # Password validation
@@ -106,10 +137,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ko-kr"
 
 # fisa_django/settings.py
 TIME_ZONE = 'Asia/Seoul'
+
+
 USE_TZ = False
 
 # 향후 django app 내에서 현재시각을 사용할 때는 
@@ -133,3 +166,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '_media') 
+
+
+LOGIN_REDIRECT_URL = 'blog_app:post_list' # 로그인 성공시 보내줄 리다이렉트 주소
+
+CRISPY_ALLOWED_TEMPLATE_PACK ='bootstrap5'
+
+CRISPY_TEMPLATE_PACK ='bootstrap5'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
